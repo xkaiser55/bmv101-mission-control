@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BMV101 Mission Control</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">BigMoneyVision101 / OpenClaw</p>
+        <h1>Mission Control</h1>
+        <p class="header-subtitle">v1.2 local/mock operations dashboard</p>
+      </div>
+      <div class="status-pill" aria-label="Local-only status">
+        <span class="status-dot"></span>
+        Local Only
+      </div>
+    </header>
+
+    <nav class="mobile-tabs" aria-label="Mission Control pages" id="mobileTabs"></nav>
+
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Mission Control navigation">
+        <div class="brand-block">
+          <strong>Mission Control</strong>
+          <span>v1.2 safe prototype</span>
+        </div>
+        <nav class="side-nav" id="sideNav"></nav>
+      </aside>
+
+      <section class="content" id="app" aria-live="polite"></section>
+    </main>
+
+    <template id="emptyStateTemplate">
+      <div class="empty-state">
+        <h3>No items yet</h3>
+        <p>Local mock events will appear here after prototype actions run.</p>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
