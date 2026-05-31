@@ -175,7 +175,8 @@
 
   const app = document.querySelector("#app");
   const sideNav = document.querySelector("#sideNav");
-  const mobileTabs = document.querySelector("#mobileTabs");
+  const mobilePageSelect = document.querySelector("#mobilePageSelect");
+  const bridge = window.MissionControlBridge;
 
   let activePage = "dashboard";
   let state = loadState();
@@ -291,7 +292,9 @@
       .map(([id, label]) => `<button type="button" class="${id === activePage ? "active" : ""}" data-page="${id}">${label}</button>`)
       .join("");
     sideNav.innerHTML = navMarkup;
-    mobileTabs.innerHTML = navMarkup;
+    mobilePageSelect.innerHTML = pages
+      .map(([id, label]) => `<option value="${id}" ${id === activePage ? "selected" : ""}>${label}</option>`)
+      .join("");
   }
 
   function render() {
@@ -619,6 +622,7 @@
   }
 
   function renderSettings() {
+    const bridgeStatus = bridge && bridge.config ? `${bridge.config.mode} / ${bridge.config.enabled ? "enabled" : "disabled"}` : "unavailable";
     return `
       ${pageHeader("Settings / Safety Rules", "Current prototype rules and blocked capabilities. These settings are informational only.", "Safety")}
       <section class="grid two">
@@ -630,6 +634,16 @@
           "Owner review uses plain English, screenshots, previews, and final approvals."
         ]))}
         ${panel("Dangerous Controls Blocked", renderSimpleList(blockedControls))}
+        ${panel("App Install", renderSimpleList([
+          "On phone, open the browser menu and choose Add to Home Screen when available.",
+          "The shortcut uses standalone app mode where the browser supports it.",
+          "Private Tailscale mode stays in place. Public HTTPS is not required for this prototype phase."
+        ]))}
+        ${panel("Structured Bridge", renderSimpleList([
+          `Bridge status: ${bridgeStatus}.`,
+          "Allowed actions are fixed and recorded locally only.",
+          "No OpenClaw endpoint, Discord webhook, token, or external transport is configured."
+        ]))}
       </section>
       <section class="panel">
         <h3>Blocked Control Preview</h3>
@@ -673,6 +687,8 @@
       });
     });
 
+    mobilePageSelect.onchange = () => navigate(mobilePageSelect.value);
+
     const uploadInput = document.querySelector("#analyticsUpload");
     if (uploadInput) {
       uploadInput.addEventListener("change", handleUpload);
@@ -682,15 +698,30 @@
   function handleAction(action, cardId) {
     const card = state.cards.find((item) => item.id === cardId) || state.cards[0];
     const handlers = {
-      "send-mia": () => updateCard(card.id, { agent: "Mia", column: "Assigned to Agent", status: "Assigned locally" }, "Sent to Mia", `${card.title} assigned to Mia as a local mock event.`),
-      "eva-checkpoint": () => addEvent(card.id, "Eva checkpoint requested", `${card.title} needs a local supervisor checkpoint.`),
-      "dry-run": () => updateCard(card.id, { column: "In Progress", status: "Dry-run logged" }, "Dry-run created", `${card.title} dry-run event created locally only.`),
-      "upload": () => navigate("upload"),
-      "done": () => updateCard(card.id, { column: "Done", status: "Completed locally" }, "Marked done", `${card.title} marked done in the local prototype.`),
-      "blocked": () => updateCard(card.id, { column: "Blocked", status: "Blocked locally" }, "Marked blocked", `${card.title} marked blocked in the local prototype.`)
+      "send-mia": () => runStructuredAction("send_to_mia", card, () => updateCard(card.id, { agent: "Mia", column: "Assigned to Agent", status: "Assigned locally" }, "Sent to Mia", `${card.title} assigned to Mia as a local mock event.`)),
+      "eva-checkpoint": () => runStructuredAction("ask_eva_checkpoint", card, () => addEvent(card.id, "Eva checkpoint requested", `${card.title} needs a local supervisor checkpoint.`)),
+      "dry-run": () => runStructuredAction("run_linkedin_metrics_dry_run", card, () => updateCard(card.id, { column: "In Progress", status: "Dry-run logged" }, "Dry-run created", `${card.title} dry-run event created locally only.`)),
+      "upload": () => runStructuredAction("upload_linkedin_analytics_file_metadata_only", card, () => {
+        addEvent(card.id, "Upload area opened", `${card.title} opened the local metadata-only upload area.`);
+        navigate("upload");
+      }),
+      "done": () => runStructuredAction("mark_task_done_local", card, () => updateCard(card.id, { column: "Done", status: "Completed locally" }, "Marked done", `${card.title} marked done in the local prototype.`)),
+      "blocked": () => runStructuredAction("mark_task_blocked_local", card, () => updateCard(card.id, { column: "Blocked", status: "Blocked locally" }, "Marked blocked", `${card.title} marked blocked in the local prototype.`))
     };
 
     handlers[action]();
+  }
+
+  function runStructuredAction(action, card, onAccepted) {
+    const result = bridge.dispatch(action, { cardId: card.id, cardTitle: card.title });
+    audit("Structured bridge mock", `${result.action} recorded in ${result.status} mode. No external transport used.`);
+
+    if (!result.accepted) {
+      addEvent(card.id, "Structured action blocked", result.detail);
+      return;
+    }
+
+    onAccepted();
   }
 
   function handleUpload(event) {
@@ -716,6 +747,7 @@
 
     uploads = [metadata, ...uploads].slice(0, 20);
     saveJson(UPLOAD_KEY, uploads);
+    bridge.dispatch("upload_linkedin_analytics_file_metadata_only", { fileName: metadata.name, fileType: metadata.type, fileSize: metadata.sizeLabel });
     addEvent(state.cards[1].id, "Upload metadata captured", `${metadata.name} metadata captured locally. File not parsed and no Notion update performed.`);
     render();
   }

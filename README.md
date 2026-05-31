@@ -14,6 +14,8 @@ This repository contains a local-only mobile-first Mission Control prototype. It
 - No `.env` file or environment values required
 - Mock data only
 - Prototype actions create local task events and sanitized audit logs only
+- PWA manifest and local icon placeholders included
+- Structured bridge scaffold is mock/disabled with no external transport
 
 ## Local Run Steps
 
@@ -72,6 +74,20 @@ The Docker package serves the static prototype only.
 - Local preview port: `4175`
 - No backend, database, authentication, secrets, or live API integrations
 - No `.env` file or environment values required
+
+## Phase E1 Safe Bridge
+
+The frontend bridge scaffold lives in `bridge.js`.
+
+- Structured actions only
+- Fixed allowlist only
+- Mock/disabled by default
+- No endpoint
+- No external transport
+- No secrets
+- No live OpenClaw or Discord connection
+
+See [Phase E1 PWA and Bridge Scaffold](docs/PHASE_E1_PWA_BRIDGE_SCAFFOLD.md) and [OpenClaw Structured Bridge Discovery](docs/OPENCLAW_STRUCTURED_BRIDGE_DISCOVERY.md).
 
 ## Prototype Pages
 
