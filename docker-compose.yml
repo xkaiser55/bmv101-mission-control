@@ -6,7 +6,7 @@ services:
     image: bmv101-mission-control:local
     container_name: bmv101-mission-control
     ports:
-      - "4175:80"
+      - "127.0.0.1:4175:80"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
