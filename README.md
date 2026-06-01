@@ -15,7 +15,7 @@ This repository contains a local-only mobile-first Mission Control prototype. It
 - Mock data only
 - Prototype actions create local task events and sanitized audit logs only
 - PWA manifest and local icon placeholders included
-- Structured bridge scaffold is mock/disabled with no external transport
+- Structured bridge scaffold is frontend-only `local/mock` with no external transport
 
 ## Local Run Steps
 
@@ -74,6 +74,7 @@ The Docker package serves the static prototype only.
 - Local preview port: `4175`
 - No backend, database, authentication, secrets, or live API integrations
 - No `.env` file or environment values required
+- No sidecar service required
 
 ## Phase E1 Safe Bridge
 
@@ -81,7 +82,7 @@ The frontend bridge scaffold lives in `bridge.js`.
 
 - Structured actions only
 - Fixed allowlist only
-- Mock/disabled by default
+- Frontend-only `local/mock` by default
 - No endpoint
 - No external transport
 - No secrets

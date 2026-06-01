@@ -37,7 +37,7 @@ bridge.js
 Default bridge status:
 
 ```text
-mock / disabled
+local/mock / disabled
 ```
 
 External transport:

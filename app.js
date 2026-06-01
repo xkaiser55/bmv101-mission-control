@@ -623,6 +623,7 @@
 
   function renderSettings() {
     const bridgeStatus = bridge && bridge.config ? `${bridge.config.mode} / ${bridge.config.enabled ? "enabled" : "disabled"}` : "unavailable";
+    const bridgeTransport = bridge && bridge.config ? bridge.config.transport : "unavailable";
     return `
       ${pageHeader("Settings / Safety Rules", "Current prototype rules and blocked capabilities. These settings are informational only.", "Safety")}
       <section class="grid two">
@@ -641,6 +642,7 @@
         ]))}
         ${panel("Structured Bridge", renderSimpleList([
           `Bridge status: ${bridgeStatus}.`,
+          `External transport: ${bridgeTransport}.`,
           "Allowed actions are fixed and recorded locally only.",
           "No OpenClaw endpoint, Discord webhook, token, or external transport is configured."
         ]))}

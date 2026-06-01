@@ -6,9 +6,6 @@ services:
       target: web
     image: bmv101-mission-control:local
     container_name: bmv101-mission-control
-    depends_on:
-      mission-control-bridge:
-        condition: service_healthy
     ports:
       - "127.0.0.1:4175:80"
     restart: unless-stopped
@@ -18,23 +15,3 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
-  mission-control-bridge:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: bridge
-    image: bmv101-mission-control-bridge:local
-    container_name: bmv101-mission-control-bridge
-    expose:
-      - "8787"
-    restart: unless-stopped
-    volumes:
-      - mission-control-queue:/data
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8787/health', (response) => process.exit(response.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
-volumes:
-  mission-control-queue:
