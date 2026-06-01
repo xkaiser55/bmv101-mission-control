@@ -22,7 +22,7 @@
 - Dashboard loads through the existing Tailscale private route.
 - Phone navigation uses the compact Current view picker.
 - Settings / Safety Rules shows Add to Home Screen guidance.
-- Settings / Safety Rules shows bridge status as mock / disabled.
+- Settings / Safety Rules shows bridge status as local/mock / disabled and external transport as none.
 - Home-screen shortcut can be added where the phone browser supports it.
 - Existing local/mock actions still create sanitized local events only.
 
